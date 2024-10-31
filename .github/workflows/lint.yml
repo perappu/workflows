@@ -1,17 +1,11 @@
 name: Lint
 
 on:
-  push:
-    branches:
-      - '**'
-  pull_request:
-    branches:
-      - '**'
-    types:
-      - opened
-      - edited
-      - synchronize
-      - reopened
+  workflow_call:
+    inputs:
+      php-version:
+        required: true
+        type: string
 
 jobs:
   pint:
