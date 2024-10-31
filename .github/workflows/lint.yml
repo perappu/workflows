@@ -9,13 +9,13 @@ on:
 
 jobs:
   pint:
-    uses: https://code.itinerare.net/internal/actions/src/branch/main/.github/workflows/pint.yml@main
+    uses: itinerare/github-actions/.github/workflows/pint.yml@main
     with:
       php-version: '8.1'
     concurrency:
       group: ci-${{ github.head_ref || github.ref_name }}
 
   blade-formatter:
-    uses: https://code.itinerare.net/internal/actions/src/branch/main/.github/workflows/blade_formatter.yml@main
+    uses: itinerare/github-actions/.github/workflows/blade_formatter.yml@main
     concurrency:
       group: ci-${{ github.head_ref || github.ref_name }}
