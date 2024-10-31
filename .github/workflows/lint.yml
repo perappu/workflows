@@ -9,13 +9,69 @@ on:
 
 jobs:
   pint:
-    uses: itinerare/github-actions/.github/workflows/pint.yml@main
-    with:
-      php-version: '8.1'
-    concurrency:
-      group: ci-${{ github.head_ref || github.ref_name }}
+      runs-on: ubuntu-latest
+  
+      permissions:
+        contents: write
+  
+      concurrency:
+        group: ci-pint-${{ github.head_ref || github.ref_name }}
+        cancel-in-progress: true
+  
+      steps:
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php-version }}
+  
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
+  
+      - name: Install
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-reqs
+  
+      - name: Run pint
+        run: composer lint
+  
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v9
+        with:
+            message: 'refactor: fix PHP styling'
+            committer_name: github-actions[bot]
+            committer_email: github-actions[bot]@users.noreply.github.com
 
   blade-formatter:
-    uses: itinerare/github-actions/.github/workflows/blade_formatter.yml@main
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
     concurrency:
-      group: ci-${{ github.head_ref || github.ref_name }}
+      group: ci-blade-formatter-${{ github.head_ref || github.ref_name }}
+      cancel-in-progress: true
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+        ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
+
+    - name: Set up node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 16.x
+        cache: 'npm'
+
+    - name: Install packages
+      run: npm install
+
+    - name: Run blade-formatter
+      run: npm run format
+
+    - name: Commit changes
+      uses: EndBug/add-and-commit@v9
+      with:
+          message: 'refactor: fix blade formatting'
+          committer_name: github-actions[bot]
+          committer_email: github-actions[bot]@users.noreply.github.com
